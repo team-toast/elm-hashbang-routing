@@ -1,20 +1,47 @@
 module Browser.Hash.Internal exposing
-    ( fixPathQuery
+    ( HashType(..)
+    , fixPathQuery
     , pathFromFragment
     , updateUrl
     )
 
+import String.Extra
 import Url exposing (Url)
 
 
-updateUrl : Url -> Url
-updateUrl =
-    fixPathQuery << pathFromFragment
+type HashType
+    = Hash
+    | Hashbang
 
 
-pathFromFragment : Url -> Url
-pathFromFragment url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+updateUrl : HashType -> Url -> Url
+updateUrl hashType =
+    fixPathQuery << pathFromFragment hashType
+
+
+pathFromFragment : HashType -> Url -> Url
+pathFromFragment hashType url =
+    let
+        newPath =
+            let
+                defaultEmpty =
+                    url.fragment |> Maybe.withDefault ""
+            in
+            case hashType of
+                Hash ->
+                    defaultEmpty
+
+                Hashbang ->
+                    if String.startsWith "!" defaultEmpty then
+                        String.dropLeft 1 defaultEmpty
+
+                    else
+                        defaultEmpty
+    in
+    { url
+        | path = newPath
+        , fragment = Nothing
+    }
 
 
 fixPathQuery : Url -> Url

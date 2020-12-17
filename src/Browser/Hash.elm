@@ -9,7 +9,7 @@ get started.
 -}
 
 import Browser exposing (Document, UrlRequest)
-import Browser.Hash.Internal exposing (updateUrl)
+import Browser.Hash.Internal exposing (updateUrl, HashType(..))
 import Browser.Navigation exposing (Key)
 import Url exposing (Url)
 
@@ -48,10 +48,10 @@ application :
     -> Program flags model msg
 application config =
     Browser.application
-        { init = \flags url key -> config.init flags (updateUrl url) key
+        { init = \flags url key -> config.init flags (updateUrl Hash url) key
         , view = config.view
         , update = config.update
         , subscriptions = config.subscriptions
         , onUrlRequest = config.onUrlRequest
-        , onUrlChange = config.onUrlChange << updateUrl
+        , onUrlChange = config.onUrlChange << (updateUrl Hash)
         }
